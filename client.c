@@ -57,11 +57,20 @@ int main(int argc, char *argv[]) {
   
   while (1) {
     /* Get filename from user */
-    if(nbytes = read(0, buffer, MAXLINE)) <= 0) continue;
-    if(strncmp(buffer, "quit", 4) == 0) break;
+    if((nbytes = read(0, buffer, MAXLINE)) <= 0) continue;
+    if(strncmp(buffer, "quit", 4) == 0){
+    	buffer_data[0] = '-';
+	buffer_data[1] = 'q';
+	buffer_data[2] = 'u';
+	buffer_data[3] = 'i';
+	buffer_data[4] = 't';
+
+	write(conn_fd, buffer_data, 5);
+	break;
+    }
 
     /* Send filename to host */
-    buffer[nbytes-1]="/0";
+    buffer[nbytes-1]='\0';
     write(conn_fd, buffer, nbytes-1);
     printf("Sending %s...\n", buffer);
 
@@ -72,8 +81,8 @@ int main(int argc, char *argv[]) {
     }
     /* Read the file and send data to host */
     int fd;
-    char* path = "./";
-    strcat(path, buffer);
+    char* path;
+    sprintf(path, "./%s", buffer);
 
     if((fd = open(path, O_RDONLY)) < 0 ){
 	    printf("file opening error\n");
@@ -91,11 +100,13 @@ int main(int argc, char *argv[]) {
     buffer_data[1] = 'E';
     buffer_data[2] = 'O';
     buffer_data[3] = 'F';
+    close(fd);
 
     write(conn_fd, buffer_data, 4);
 
     /* Print number of bytes sent */
-    printf("Sent %d bytes.\n", cnt);    
+    printf("Sent %d bytes.\n", cnt);  
+      
   }
 
   close(conn_fd);
