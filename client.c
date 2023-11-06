@@ -57,15 +57,16 @@ int main(int argc, char *argv[]) {
   
   while (1) {
     /* Get filename from user */
+    printf("File Name: ");
     if((nbytes = read(0, buffer, MAXLINE)) <= 0) continue;
     if(strncmp(buffer, "quit", 4) == 0){
-    	buffer_data[0] = '-';
-	buffer_data[1] = 'q';
-	buffer_data[2] = 'u';
-	buffer_data[3] = 'i';
-	buffer_data[4] = 't';
+    	buffer[0] = '-';
+	buffer[1] = 'q';
+	buffer[2] = 'u';
+	buffer[3] = 'i';
+	buffer[4] = 't';
 
-	write(conn_fd, buffer_data, 5);
+	write(conn_fd, buffer, 5);
 	break;
     }
 
@@ -76,7 +77,10 @@ int main(int argc, char *argv[]) {
 
     /* Receive ack from host */
     while(1){
-    	read(conn_fd, buffer_data, MAXLINE);
+    	if((nbytes = read(conn_fd, buffer_data, MAXLINE)) < 0){
+		printf("read error\n");
+		exit(5);
+	}
         if(strncmp(buffer_data, "-ack-", 5) == 0) break;
     }
     /* Read the file and send data to host */

@@ -58,10 +58,14 @@ int main(int argc, char *argv[]) {
     int nbytes;
     while (1) {
       /* Get filename from client */
-      if((nbytes = read(conn_fd, buffer, sizeof(buffer)) <= 0)) {
+      if((nbytes = read(conn_fd, buffer, sizeof(buffer))) <= 0) {
 		      continue;
       }
-      buffer[nbytes-1] = '\0';
+      buffer[nbytes] = '\0';
+      
+      if(strncmp(buffer, "-quit", 5) == 0){
+      	break;
+      }
 
       /* Print filename */
       printf("File Name: %s\n", buffer);
@@ -79,10 +83,10 @@ int main(int argc, char *argv[]) {
       free(path);
       /* Send ack */
       buffer_data[0] = '-';
-      buffer_data[0] = 'a';
-      buffer_data[0] = 'c';
-      buffer_data[0] = 'k';
-      buffer_data[0] = '-';
+      buffer_data[1] = 'a';
+      buffer_data[2] = 'c';
+      buffer_data[3] = 'k';
+      buffer_data[4] = '-';
 
       write(conn_fd, buffer_data, 5);
       
@@ -94,7 +98,7 @@ int main(int argc, char *argv[]) {
 	      printf("file reading error\n");
 	      exit(5);
       }
-      else if(nbytes > 0){
+      else if(nbytes >= 0){
       	if(strncmp(buffer_data, "-EOF", 4) == 0){
 		close(fd);
 		break;
@@ -110,11 +114,6 @@ int main(int argc, char *argv[]) {
       printf("Received %d bytes.\n", cnt);
 
       /* Break from loop once client quits */
-      if(read(conn_fd, buffer_data, sizeof(buffer_data)) > 0){
-	if(strncmp(buffer_data, "-quit", 5) == 0){
-		break;
-	}	
-      }
     }
 
     /* Receive filename & data */
