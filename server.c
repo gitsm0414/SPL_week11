@@ -58,7 +58,9 @@ int main(int argc, char *argv[]) {
     int nbytes;
     while (1) {
       /* Get filename from client */
-      if((nbytes = read(conn_fd, buffer, sizeof(buffer)) <= 0) continue;
+      if((nbytes = read(conn_fd, buffer, sizeof(buffer)) <= 0)) {
+		      continue;
+      }
       buffer[nbytes-1] = '\0';
 
       /* Print filename */
@@ -66,13 +68,15 @@ int main(int argc, char *argv[]) {
 
       /* Create a new file called <filename>_copy  */
       int fd;
-      char* path;
+      char* path = (char*)malloc(sizeof(char) * 55);
       sprintf(path, "./%s_copy", buffer);
       
-      if((fd = open(path, O_WRONLY|O_CREAT, 777)) < 0){
+      if((fd = open(path, O_WRONLY|O_CREAT, 0777)) < 0){
       	printf("file opening error\n");
+	free(path);
 	exit(5);
       }
+      free(path);
       /* Send ack */
       buffer_data[0] = '-';
       buffer_data[0] = 'a';
@@ -106,7 +110,7 @@ int main(int argc, char *argv[]) {
       printf("Received %d bytes.\n", cnt);
 
       /* Break from loop once client quits */
-      if(read(conn_fd, buffer_data, sizeof(buffer_data) > 0){
+      if(read(conn_fd, buffer_data, sizeof(buffer_data)) > 0){
 	if(strncmp(buffer_data, "-quit", 5) == 0){
 		break;
 	}	
@@ -117,6 +121,6 @@ int main(int argc, char *argv[]) {
    }
 
   close(conn_fd);
-
+  
   return 0;
 }

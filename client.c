@@ -81,17 +81,19 @@ int main(int argc, char *argv[]) {
     }
     /* Read the file and send data to host */
     int fd;
-    char* path;
+    char* path = (char*)malloc(sizeof(char)*55);;
     sprintf(path, "./%s", buffer);
 
     if((fd = open(path, O_RDONLY)) < 0 ){
 	    printf("file opening error\n");
+	    free(path);
 	    exit(5);
     }
+    free(path);
 
     int cnt = 0;
     while((nbytes = read(fd, buffer_data, MAXLINE)) > 0){
-	    write(conn_fd, buffer_data, nbyets);
+	    write(conn_fd, buffer_data, nbytes);
 	    cnt += nbytes;
     }
 
